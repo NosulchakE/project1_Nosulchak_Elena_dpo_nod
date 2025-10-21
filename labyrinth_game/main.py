@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-from constants import ROOMS
-from utils import describe_current_room
+from labyrinth_game.constants import ROOMS
+from labyrinth_game.utils import describe_current_room
+from labyrinth_game.player_actions import get_input
 game_state = {
         "player_inventory": [],
         "current_room": "entrance",
