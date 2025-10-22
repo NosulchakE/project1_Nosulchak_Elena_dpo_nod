@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from labyrinth_game.constants import ROOMS
-from labyrinth_game.utils import describe_current_room, solve_puzzle, attempt_open_treasure, show_help
+from labyrinth_game.utils import describe_current_room, solve_puzzle, attempt_open_treasure, show_help, pseudo_random, trigger_trap
 from labyrinth_game.player_actions import get_input, move_player, take_item, show_inventory, use_item
 game_state = {
         "player_inventory": [],

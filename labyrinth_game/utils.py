@@ -1,4 +1,5 @@
 from labyrinth_game.constants import ROOMS
+import math
 def describe_current_room(game_state):
     current_room = game_state["current_room"]
     room_data = ROOMS[current_room]
@@ -83,3 +84,24 @@ def show_help():
     print(" open  -попытаться открыть сундук")
     print(" help  -показать это сообщение")
     print(" quit/exit  -выйти из игры")
+
+def pseudo_random(seed, modulo):
+    x = math.sin(seed*12.9898)*43758.5453
+    x = x - math.floor(x)
+    return int(x*modulo)
+
+def trigger_trap(game_state):
+    print("\nЛовушка активирована! Пол начал дрожжать и стены сдвигаются...")
+    inventory = game_state("player_inventory", [])
+
+    if inventory:
+        index = pseudo_random(game_state["steps_taken"], len(inventory))
+        lost_item = inventory.pop(index)
+        print(f"Вы не удержали равновесие и потеряли предмет: {lost_item}!")
+    else:
+        danger = pseudo_random(game_state["steps_taken"], 10)
+        if danger < 3:
+            print("Ловушка оказалась смертельной...Вы проиграли.")
+            game_state["game_over"] = True
+        else:
+            print("Вам чудом удалось выбраться из ловушки! Но это было опасно...")
