@@ -1,5 +1,6 @@
 from labyrinth_game.constants import ROOMS
 import math
+from game_data import game_map
 def describe_current_room(game_state):
     current_room = game_state["current_room"]
     room_data = ROOMS[current_room]
@@ -16,22 +17,43 @@ def describe_current_room(game_state):
 
 def solve_puzzle(game_state):
     current_room = game_state["current_room"]
-    room_data = ROOMS[current_room]
-    if not room_data.get("puzzle"):
+    puzzle = ROOMS[current_room]["puzzle"]
+
+    if not puzzle:
         print("Загадок здесь нет.")
         return
-    question, answer = room_data["puzzle"]
-    print("\Загадка: ")
-    print(question)
-    user_answer = input("Ваш ответ: ").strip().lower()
-    if user_answer == answer.lower():
+
+    question, correct_answer = puzzle
+    print(f"Загадка: {question}")
+    player_answer = input("Ваш ответ: ").strip().lower()
+
+    alt_answer = {
+        "10": ["10", "десять", "ten"],
+        "шаг шаг шаг": ["шаг шаг шаг", "шаги", "шаг три раза"],
+        "резонанс": ["резонанс"],
+        "8": ["8", "восемь"],
+        "огонь": ["огонь", "пламя", "пламень"]
+    }
+    valid_answer = alt_answer.get(correct_answer, [correct_answer])
+    if player_answer in valid_answer:
         print("Верно! Загадка решена.")
-        room_data["puzzle"] = None
-        reward = "mysterious artifact"
-        game_state["player_inventory"].append(reward)
-        print(f"Вы получили награду: {reward}")
+
+        ROOMS[current_room]["puzzle"] = None
+
+        if current_room == "hall":
+            print("Вы получили ключ от сокровищницы!")
+            game_state["player_inventory"].append(treasure_key")
+        elif current_room == "trap_room":
+            print("Вы обезвредили ловушку!")
+        elif current_room == "library":
+            print("Вы нашли секрет в книге и усилили свой меч!")
+        elif current_room == "garden":
+            print("Вам вручили волшебный амулет!")
+            game_state["player_inventory"].append("magic_amulet")
     else:
-        print("Неверно. Попробуйте снова.")
+        print("Неверною Попробуйте снова.")
+        if current_room == "trap_room":
+            trigger_trap(game_state)
 
 def attempt_open_treasure(game_state):
     room = game_state["current_room"]
@@ -105,3 +127,32 @@ def trigger_trap(game_state):
             game_state["game_over"] = True
         else:
             print("Вам чудом удалось выбраться из ловушки! Но это было опасно...")
+
+def random_event(game_state):
+    chance = pseudo_random(game_state["steps_taken"], 10)
+    if chance != 0:
+        return
+    print("\nНеожиданное событие!")
+
+    event_type = pseudo_random(game_state["steps_taken"] +1, 3)
+
+    current_room = game_state["current_room"]
+    inventory = game_state["player_inventory"]
+    room_data = game_map[current_room]
+
+    if event_type == 0:
+        print("Вы замечаете, что на полу что-то блестит...Это монетка!")
+        room_data["items"].append("coin")
+
+    elife event_type == 1:
+        print("Из тени раздается странный шорох...")
+        if "sword" in inventory:
+            print("Вы вскидываете меч - и существо убегает прочь.")
+        else:
+            print("Вы стоите неподвижно, стараясь не дышать. Кажется, пронесло...")
+        elife event_type == 2:
+            if current_room == "trap_room" and "torch" not in inventory:
+                print("В темноте что-то щелкнуло - возможно ловушка!")
+                trigger_trap(game_state)
+            else:
+                print("Вы чувствуете легкий сквозняк... но ничего не происходит.")
