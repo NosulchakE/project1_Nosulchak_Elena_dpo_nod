@@ -1,6 +1,5 @@
-from labyrinth_game.constants import ROOMS
+from labyrinth_game.constants import ROOMS, COMMANDS
 import math
-from game_data import game_map
 def describe_current_room(game_state):
     current_room = game_state["current_room"]
     room_data = ROOMS[current_room]
@@ -42,7 +41,7 @@ def solve_puzzle(game_state):
 
         if current_room == "hall":
             print("Вы получили ключ от сокровищницы!")
-            game_state["player_inventory"].append(treasure_key")
+            game_state["player_inventory"].append("treasure_key")
         elif current_room == "trap_room":
             print("Вы обезвредили ловушку!")
         elif current_room == "library":
@@ -97,15 +96,8 @@ def attempt_open_treasure(game_state):
 
 def show_help():
     print("\nДоступные команды:")
-    print(" go <направление> - перейти (north/south/east/west)")
-    print(" look    -осмотреть текущую комнату")
-    print(" take <предмет>  -поднять предмет")
-    print(" use <предмет>  -использовать предмет из инвентаря")
-    print(" inventory  -показать инвентарь")
-    print(" solve  -решить загадку или открыть сундук")
-    print(" open  -попытаться открыть сундук")
-    print(" help  -показать это сообщение")
-    print(" quit/exit  -выйти из игры")
+    for command, description in COMMANDS.items():
+        print(f"  {command.ljust(16)} - {description}")
 
 def pseudo_random(seed, modulo):
     x = math.sin(seed*12.9898)*43758.5453
@@ -132,27 +124,27 @@ def random_event(game_state):
     chance = pseudo_random(game_state["steps_taken"], 10)
     if chance != 0:
         return
-    print("\nНеожиданное событие!")
-
-    event_type = pseudo_random(game_state["steps_taken"] +1, 3)
-
     current_room = game_state["current_room"]
     inventory = game_state["player_inventory"]
-    room_data = game_map[current_room]
+    room_data = ROOMS[current_room]
+
+    print("\nЧто-то происходит!")
+
+    event_type = pseudo_random(game_state["steps_taken"] +1, 3)
 
     if event_type == 0:
         print("Вы замечаете, что на полу что-то блестит...Это монетка!")
         room_data["items"].append("coin")
 
-    elife event_type == 1:
+    elif event_type == 1:
         print("Из тени раздается странный шорох...")
         if "sword" in inventory:
             print("Вы вскидываете меч - и существо убегает прочь.")
         else:
             print("Вы стоите неподвижно, стараясь не дышать. Кажется, пронесло...")
-        elife event_type == 2:
-            if current_room == "trap_room" and "torch" not in inventory:
-                print("В темноте что-то щелкнуло - возможно ловушка!")
-                trigger_trap(game_state)
-            else:
-                print("Вы чувствуете легкий сквозняк... но ничего не происходит.")
+    elif event_type == 2:
+        if current_room == "trap_room" and "torch" not in inventory:
+            print("В темноте что-то щелкнуло - возможно ловушка!")
+            trigger_trap(game_state)
+        else:
+            print("Но все обошлось, это был просто сквозняк.")

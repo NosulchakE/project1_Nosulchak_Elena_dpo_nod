@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from labyrinth_game.constants import ROOMS
+from labyrinth_game.constants import ROOMS, COMMANDS
 from labyrinth_game.utils import describe_current_room, solve_puzzle, attempt_open_treasure, show_help, pseudo_random, trigger_trap
 from labyrinth_game.player_actions import get_input, move_player, take_item, show_inventory, use_item
 game_state = {
@@ -13,8 +13,14 @@ def process_command(game_state, command):
     if not parts:
         print("Введите команду.")
         return
+
     cmd = parts[0]
     arg = " ".join(parts[1:]) if len(parts)>1 else None
+    directions = ["north", "south", "east", "west"]
+    if cmd in directions:
+        move_player(game_state, cmd)
+        return
+
     match cmd:
         case "look":
             describe_current_room(game_state)
@@ -24,10 +30,13 @@ def process_command(game_state, command):
             else:
                 print("Укажите направление. Пример: go north")
         case "take":
-            if arg:
+            if arg == "treasure_chest":
+                print("Вы не можете поднять сундук, он слишком тяжелый!")
+            elif arg:
                 take_item(game_state, arg)
             else:
                 print("Укажите предмет. Пример: take torch")
+
         case "use":
             if arg:
                 use_item(game_state, arg)
@@ -64,3 +73,4 @@ def main():
    
 if __name__ == "__main__":
     main()
+
