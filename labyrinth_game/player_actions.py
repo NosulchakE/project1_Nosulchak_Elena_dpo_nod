@@ -72,5 +72,11 @@ def use_item(game_state, item_name):
                 print("Вы нашли предмет: rusty key.")
             else:
                 print("Но внутри пусто - вы уже забрали все ценное.")
+        case "rusty_key":
+            current_room = game_state["current_room"]
+            if current_room == "hall":
+                print("Вы используете найденный ключ, чтобы открыть путь в комнату сокровищ.")
+            else:
+                print("Вы осматриваете ключ, но пока не знаете, куда его применить.")
         case _:
             print("Вы не знаете как использовать этот предмет.")

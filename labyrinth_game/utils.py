@@ -41,7 +41,7 @@ def solve_puzzle(game_state):
 
         if current_room == "hall":
             print("Вы получили ключ от сокровищницы!")
-            game_state["player_inventory"].append("treasure_key")
+            game_state["player_inventory"].append("rusty_key")
         elif current_room == "trap_room":
             print("Вы обезвредили ловушку!")
         elif current_room == "library":
@@ -50,7 +50,7 @@ def solve_puzzle(game_state):
             print("Вам вручили волшебный амулет!")
             game_state["player_inventory"].append("magic_amulet")
     else:
-        print("Неверною Попробуйте снова.")
+        print("Неверное. Попробуйте снова.")
         if current_room == "trap_room":
             trigger_trap(game_state)
 
@@ -62,37 +62,29 @@ def attempt_open_treasure(game_state):
         print("Здесь нечего открывать.")
         return
     
-    if "treasure_chest" not in room_data["items"]:
+    if "treasure_chest" not in room_data.get("items",[]):
         print("Сундук уже открыт. Здесь пусто.")
         return
 
-    if "treasure_key" in game_state["player_inventory"]:
-        print("Вы применяете ключ, и замое щелкает. Сундук открыт!")
-        room_data["items"].remove("treasure_chest")
+    if "rusty_key" in game_state["player_inventory"]:
+        print("Вы применяете ключ, и замок щелкает. Сундук открыт!")
         print("В сундуке сокровище! Вы победили!")
-        game_state["game_over"] = True
-        return
-    print("Сундук заперт. Без ключа не открыть...")
-    choice = input("Хотите попробовать ввести код? (да/нет): ").strip().lower()
-    if choice != "да":
-        print("Вы отступаете от сундука.")
-        return
-
-    puzzle = room_data.get("puzzle")
-    if not puzzle:
-        print("Не видно механизма для кода...")
-        return
-
-    correct_code = puzzle[1]
-    user_code = input("Введите код: ").strip().lower()
-
-    if user_code == correct_code:
-        print("Механизм щелкает - вы взломали сундук!")
         room_data["items"].remove("treasure_chest")
-        print("В сундуке сокровище! Вы победили!")
         game_state["game_over"] = True
     else:
-        print("Неверно. Сундук остается закрытым.")
+        answer = get_input("Сундук заперт. Хотите попробовать ввести код? (да/нет)").strip().lower()
+        if answer == "да":
+            code = get_input("Введите код: ").strip()
+            puzzle_answer = room_data["puzzle"] if isinstance(room_data["puzzle"], tuple) else room_data["puzzle"]
+            if code == puzzle_answer or code.lower() == str(puzzle_answer).lower():
+                print("Вы ввели правильный код! Сундук открыт!")
+                print("В сундуке сокровище! Вы победили!")
+                room_data["items"].remove("treasure_chest")
+                game_state["game_over"] = True
+            else:
+                print("Неверно. Сундук заперт.")
+        else:
+            print("Вы отступаете от сундука.")
 
 def show_help():
     print("\nДоступные команды:")
